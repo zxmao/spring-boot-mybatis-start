@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="${scan:-true}" scanPeriod="${scanPeriod:-60 seconds}" debug="true">
+	<contextName>junxiong</contextName>
+	
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d [%-5level] %logger.%M:%L - %msg %n</pattern>
+		</encoder>
+		<!-- <target>System.out</target> -->
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">   
+			<level>DEBUG</level>   
+    	</filter>
+	</appender>
+	
+	<appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${logback.filePath}/sys.log</file>
+		<append>true</append>
+		<encoder>
+			<pattern>%d [%-5level] %logger.%M:%L - %msg %n</pattern>
+		</encoder>
+		
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${logback.filePath}/%d{yyyy-MM-dd}/sys-%i.log</FileNamePattern>
+   			<MaxHistory>${fileHistory:-30}</MaxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>${fileSize:-150MB}</MaxFileSize>
+   			</TimeBasedFileNamingAndTriggeringPolicy>        
+  		</rollingPolicy>
+	</appender>
+	
+	<appender name="tempFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${logback.filePath}/temp.log</file>
+		<append>true</append>
+		<encoder>
+			<pattern>%d [%-5level] %logger.%M:%L - %msg %n</pattern>
+		</encoder>
+		
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${logback.filePath}/%d{yyyy-MM-dd}/temp-%i.log</FileNamePattern>
+   			<MaxHistory>${fileHistory:-30}</MaxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>${fileSize:-150MB}</MaxFileSize>
+   			</TimeBasedFileNamingAndTriggeringPolicy>        
+  		</rollingPolicy>
+	</appender>
+
+  <!-- 自定义配置打印日志 -->
+	<logger name="org.springframework" level="INFO" /> 
+	<logger name="jdbc.connection" level="OFF" />
+	<logger name="jdbc.audit" level="OFF" />
+	<logger name="jdbc.resultset" level="OFF" />
+	<logger name="jdbc.sqlonly" level="OFF" />
+	<logger name="jdbc.sqltiming" level="INFO" />
+	<logger name="org.apache.http.wire" level="INFO" />
+
+	
+	<root level="DEBUG">
+		<appender-ref ref="console" />
+		<appender-ref ref="file" />
+		<appender-ref ref="tempFile" />
+	</root>
+	
+</configuration>
