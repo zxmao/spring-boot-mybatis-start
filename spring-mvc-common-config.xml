@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xmlns:task="http://www.springframework.org/schema/task" 
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+           http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	   	   http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd"
+	   default-autowire="byName" default-lazy-init="false">
+
+	<context:component-scan base-package="com.common" />
+	
+  <!-- mvc注解开启 -->
+	<mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <!-- 避免IE执行AJAX时,返回JSON出现下载文件 -->
+            <bean id="fastJsonHttpMessageConverter" class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">  
+	            <property name="supportedMediaTypes">  
+	                <list>  
+	                    <value>text/plain;charset=UTF-8</value>  
+	                    <value>text/html;charset=UTF-8</value>
+	                    <value>application/json;charset=UTF-8</value>
+	                </list>  
+	            </property>  
+	        </bean>
+        </mvc:message-converters>
+        
+    <!-- 请求参数转换 -->
+		<mvc:argument-resolvers >
+			<bean class="com.common.web.context.CommonMethodArgumentResolver" />
+		</mvc:argument-resolvers>
+    </mvc:annotation-driven>
+    
+    <!-- 视图控制器 -->
+	<mvc:view-resolvers >
+		<mvc:jsp cache-views="false" prefix="/WEB-INF/view/" suffix=".jsp" view-class="org.springframework.web.servlet.view.JstlView"/>
+    </mvc:view-resolvers>
+    
+	<!-- 国际化操作拦截器 如果采用基于（请求/Session/Cookie）则必需配置 -->
+    <mvc:interceptors>
+		<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" />
+	</mvc:interceptors>
+
+	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<property name="favorPathExtension" value="true" />
+		<property name="favorParameter" value="true" />
+		<property name="defaultContentType" value="text/html" />
+		<property name="mediaTypes">
+			<value>
+				json=application/json
+				xml=application/xml
+			</value>
+		</property>
+	</bean>
+
+  <!-- 国际化配置 -->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<!-- 国际化信息所在的文件名 -->
+		<property name="basename" value="i18n/messages" />
+		<!-- 如果在国际化资源文件中找不到对应代码的信息，就用这个代码作为名称 -->
+		<property name="useCodeAsDefaultMessage" value="true" />
+	</bean>
+
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
+		
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="utf-8" />   
+        <property name="maxUploadSize" value="104857600" />  
+    </bean>
+    
+   	<aop:aspectj-autoproxy proxy-target-class="true" />
+	<!-- Activates annotation-based bean configuration -->
+	<context:annotation-config />
+  
+	<!-- 定时任务注解开启 -->
+	<task:annotation-driven scheduler="neoScheduler" mode="proxy"/>  
+    <task:scheduler id="neoScheduler" pool-size="10"/> 
+</beans>
